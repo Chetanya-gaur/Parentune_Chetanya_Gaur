@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var planAdapter: PlanAdapter
     private lateinit var viewModel: MainViewModel
     private var currentPlans: List<Plan> = emptyList()
-
+    private var currentSelectedPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        planAdapter = PlanAdapter()
+        planAdapter = PlanAdapter { indicatorPosition ->
+            if (indicatorPosition != currentSelectedPosition) {
+                scrollToPosition(indicatorPosition)
+            }
+        }
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         binding.rvPlans.layoutManager = layoutManager
@@ -57,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                     val snappedView = snapHelper.findSnapView(layoutManager)
                     if (snappedView != null) {
                         val position = layoutManager.getPosition(snappedView)
+                        currentSelectedPosition = position
                         updateButtonText(position)
                     }
                 }
@@ -75,5 +80,9 @@ class MainActivity : AppCompatActivity() {
             planAdapter.setPlans(plans)
             updateButtonText(0)
         }
+    }
+    private fun scrollToPosition(position: Int) {
+        currentSelectedPosition = position
+        binding.rvPlans.smoothScrollToPosition(position)
     }
 }
